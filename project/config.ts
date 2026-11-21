@@ -5,4 +5,4 @@ export const ProjectVersion = "6.5.10";
 // it stays the upstream one; a fork-only release raises the revision instead and is
 // tagged `v<ProjectVersion>-fork.<ForkRevision>`.
 export const ProjectRepo = "minittupoyo/spicy-lyrics";
-export const ForkRevision = 1;
+export const ForkRevision = 2;
