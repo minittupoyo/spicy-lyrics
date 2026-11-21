@@ -63,7 +63,7 @@ import "./css/PopupDock.css";
 import "./css/PortraitFullscreen.css";
 import "./css/PlayerBelowCover.css";
 import "./css/GroupedViewControls.css";
-import { showUpdatedDialog } from "./components/ReactComponents/UpdateDialog.tsx";
+import { RELEASES_URL, showUpdatedDialog } from "./components/ReactComponents/UpdateDialog.tsx";
 import { IsPIP, OpenPopupLyrics, ClosePopupLyrics } from "./components/Utils/PopupLyrics.ts";
 import { GetNPVCardElement, GetNPVElement, GetNPVObserverRoot, initNPVLyrics } from "./components/Utils/NPVLyrics.ts";
 import ReactDOM from "react-dom/client";
@@ -1086,10 +1086,10 @@ async function main() {
 
       Global.Event.listen("session:navigation", (data: Location) => {
         if (data.pathname === "/SpicyLyrics/Update") {
-          $fromVersion.set($spicyLyricsVersion.get());
-          window._spicy_lyrics_metadata = {};
+          // This build is a single file in the Extensions folder, so there is nothing
+          // to reload into: updating means downloading the new release.
           Session.GoBack();
-          window.location.reload();
+          window.open(`${RELEASES_URL}/latest`, "_blank");
         }
       });
 

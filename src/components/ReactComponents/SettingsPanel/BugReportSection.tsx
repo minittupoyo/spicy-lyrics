@@ -4,8 +4,7 @@ import Session from "../../Global/Session.ts";
 import {
   BuildBugReport,
   CopyText,
-  DISCORD_BUGS_URL,
-  DISCORD_INVITE_URL,
+  NEW_ISSUE_URL,
 } from "../../../utils/BugReport.ts";
 import { $latestVersion } from "./About.tsx";
 import { BugIcon } from "./icons.tsx";
@@ -64,12 +63,12 @@ function CopyReportButton() {
   );
 }
 
-/** Settings → Got a Bug?: what gets copied, and the way to Discord. */
+/** Settings → Got a Bug?: what gets copied, and the way to a new GitHub issue. */
 export function BugReportPane() {
   const latestVersion = useStore($latestVersion);
   const [report, setReport] = useState(() => BuildBugReport());
   const [copyState, copy] = useCopy();
-  const [discordState, copyAndOpen] = useCopy(() => window.open(DISCORD_BUGS_URL, "_blank"));
+  const [discordState, copyAndOpen] = useCopy(() => window.open(NEW_ISSUE_URL, "_blank"));
 
   useEffect(() => {
     setReport(BuildBugReport({ latestVersion }));
@@ -82,13 +81,13 @@ export function BugReportPane() {
     Session.SpicyLyrics.GetCurrentVersion(),
     Session.SpicyLyrics.ParseVersion(latestVersion)
   );
-  // The preview shows the block itself; the Markdown around it is only for Discord.
+  // The preview shows the block itself; the Markdown around it is only for GitHub.
   const preview = report.split("\n").filter((line) => line !== "```" && !line.startsWith("**")).slice(0, -1);
 
   return (
     <div className="sl-sp-bug">
       <p className="sl-sp-intro">
-        Copy your setup and post it in #extension-bugs on our Discord, with what went wrong. It tells us what we'd
+        Copy your setup and paste it into a new GitHub issue, with what went wrong. It tells us what we'd
         otherwise have to ask.
       </p>
 
@@ -114,7 +113,7 @@ export function BugReportPane() {
           data-state={discordState}
           onClick={(e) => copyAndOpen(e.currentTarget)}
         >
-          <CopyLabel state={discordState} idle="Copy & open Discord" />
+          <CopyLabel state={discordState} idle="Copy & open GitHub issue" />
         </button>
         <button
           type="button"
@@ -128,12 +127,6 @@ export function BugReportPane() {
 
       <div className="sl-sp-bug-fineprint">
         <p>No account details, user IDs or tokens are included.</p>
-        <p>
-          Not in the server yet?{" "}
-          <button type="button" className="sl-sp-bug-join-link" onClick={() => window.open(DISCORD_INVITE_URL, "_blank")}>
-            Join here
-          </button>
-        </p>
       </div>
 
       <div className="sl-sp-group">
@@ -162,8 +155,8 @@ export const bugReportSection: SectionDef = {
         {
           id: "copyBugReport",
           label: "Copy Bug Report",
-          description: "Copies your setup to paste in #extension-bugs on our Discord.",
-          keywords: "bug report issue problem broken discord help support diagnostics debug details",
+          description: "Copies your setup to paste into a new GitHub issue.",
+          keywords: "bug report issue problem broken github help support diagnostics debug details",
           Control: CopyReportButton,
         },
       ],

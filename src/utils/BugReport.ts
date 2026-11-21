@@ -1,3 +1,4 @@
+import { ProjectRepo } from "../../project/config.ts";
 import Global from "../components/Global/Global.ts";
 import Session from "../components/Global/Session.ts";
 import { SpotifyPlayer } from "../components/Global/SpotifyPlayer.ts";
@@ -22,17 +23,17 @@ import { $ttmlReviewer } from "./ttmlReviewer.ts";
 import { $npvLyricsExpanded, $npvLyricsOpen, $romanization } from "./uiState.ts";
 
 /**
- * The setup report users paste into Discord when something goes wrong: from the
- * "Got a Bug?" tab in Settings, and from "Copy details" on a lyrics notice.
+ * The setup report users paste into a GitHub issue when something goes wrong: from
+ * the "Got a Bug?" tab in Settings, and from "Copy details" on a lyrics notice.
  *
- * Nothing identifying goes in: no account, no user ID, no tokens. It always fits in
- * one Discord message.
+ * Nothing identifying goes in: no account, no user ID, no tokens. It stays short
+ * enough to leave room for the user's own text.
  */
 
-export const DISCORD_INVITE_URL = "https://discord.com/invite/uqgXU5wh8j";
-export const DISCORD_BUGS_URL = "https://discord.com/channels/1369992682214264993/1370023518313644193";
+export const ISSUES_URL = `https://github.com/${ProjectRepo}/issues`;
+export const NEW_ISSUE_URL = `${ISSUES_URL}/new`;
 
-// Discord's limit is 2,000 characters; the rest is headroom for the user's own text.
+// Kept short so the report and the user's own text sit comfortably in one issue.
 const MAX_REPORT_LENGTH = 1900;
 const MAX_SETTINGS_LENGTH = 360;
 const LABEL_WIDTH = 15;
@@ -322,7 +323,7 @@ function versionRow(latest: string | undefined): string | undefined {
   return extra ? `${current} (${extra})` : current;
 }
 
-/** The text that's copied, with the label column padded so Discord's code block lines it up. */
+/** The text that's copied, with the label column padded so the code block lines up. */
 export function BuildBugReport(options: BugReportOptions = {}): string {
   const { notice, latestVersion } = options;
   const uri = notice?.uri ?? SpotifyPlayer.GetUri();
@@ -374,7 +375,7 @@ export function BuildBugReport(options: BugReportOptions = {}): string {
       footer,
     ].join("\n");
 
-  // Oldest errors go first if it would run past one Discord message.
+  // Oldest errors go first if it would run past the length limit.
   let report = assemble(errors);
   for (let keep = errors.length - 1; report.length > MAX_REPORT_LENGTH && keep >= 0; keep--) {
     report = assemble(errors.slice(errors.length - keep));

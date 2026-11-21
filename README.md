@@ -1,13 +1,20 @@
-# Spicy Lyrics
-[![Github Version](https://img.shields.io/github/v/release/spikerko/spicy-lyrics)](https://github.com/spikerko/spicy-lyrics/) [![Github Stars badge](https://img.shields.io/github/stars/spikerko/spicy-lyrics?style=social)](https://github.com/spikerko/spicy-lyrics/) [![Discord Badge](https://dcbadge.limes.pink/api/server/uqgXU5wh8j?style=flat)](https://discord.com/invite/uqgXU5wh8j)
+# Spicy Lyrics (fork)
+[![Latest release](https://img.shields.io/github/v/release/minittupoyo/spicy-lyrics)](https://github.com/minittupoyo/spicy-lyrics/releases/latest)
 
-### *[oursitee](https://yoursit.ee/lyrics)*
+This is a fork of [Spikerko/spicy-lyrics](https://github.com/Spikerko/spicy-lyrics), licensed under AGPL-3.0 like the original. It is not affiliated with or endorsed by the original project, and it is not in the Spicetify Marketplace.
+
+**What the fork changes**
+
+- **LRCLIB lyrics.** Each song is looked up on [LRCLIB](https://lrclib.net) first (synced lines, or plain lyrics); when LRCLIB has nothing, the usual Spicy Lyrics API is used. Settings → Experiments → *LRCLIB First* turns it off.
+- **Releases come from this repository.** The extension is one self-contained file, and the update notice checks this repository's releases instead of the original's.
+
+Lyrics from the Spicy Lyrics API still come from the original project's hosted service, which is separate from this fork.
 
 Spicy Lyrics replaces Spotify's lyrics view with animated lyrics, dynamic backgrounds, romanization, and customization options. It is an open-source extension for the Spotify desktop client, built on [Spicetify](https://spicetify.app).
 
 ![Extension Example](./previews/wide_home.webp)
 
-**Links:** [Guides](https://guides.spicylyrics.org/s/guides) · [FAQ](https://guides.spicylyrics.org/s/tools/doc/faq-anGSiKrnmX) · [Status](https://status.spicylyrics.org/) · [Discord](https://discord.gg/lyrc) · [Developers Platform](https://developers.spicylyrics.org)
+**Original project links:** [Guides](https://guides.spicylyrics.org/s/guides) · [FAQ](https://guides.spicylyrics.org/s/tools/doc/faq-anGSiKrnmX) · [Status](https://status.spicylyrics.org/) · [Discord](https://discord.gg/lyrc) · [Developers Platform](https://developers.spicylyrics.org)
 
 ## Installation
 
@@ -30,45 +37,24 @@ curl -fsSL https://raw.githubusercontent.com/spicetify/cli/main/install.sh | sh
 > [!WARNING]
 > Spicetify cannot modify a Snap-based Spotify installation on Linux. See the [official Spicetify guide](https://spicetify.app/docs/getting-started) for other setups.
 
-### 2. Check that the Marketplace is installed
+### 2. Install this fork
 
-Look for the **Marketplace** button in Spotify's top-left corner. If it's missing, install it:
-
-**Windows:**
-
-```powershell
-iwr -useb https://raw.githubusercontent.com/spicetify/marketplace/main/resources/install.ps1 | iex
-```
-
-**macOS / Linux:**
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/spicetify/marketplace/main/resources/install.sh | sh
-```
-
-### 3. Install Spicy Lyrics
-
-1. Open the **Marketplace**.
-2. Go to **Extensions** and search for **Spicy Lyrics**.
-3. Select **Install**.
-
-Play a song and open the lyrics view to confirm it loaded. Marketplace installs update automatically; restart Spotify if a new version hasn't appeared.
-
-<details>
-<summary><strong>Manual installation (not recommended)</strong></summary>
-
-1. Download [`spicy-lyrics.mjs`](./builds/spicy-lyrics.mjs).
+1. Download `spicy-lyrics.js` from the [latest release](https://github.com/minittupoyo/spicy-lyrics/releases/latest).
 2. Put it in your Spicetify Extensions folder. [Find the folder for your OS](https://spicetify.app/docs/customization/extensions#manual-installation).
 3. Run:
 
 ```bash
-spicetify config extensions spicy-lyrics.mjs
+spicetify config extensions spicy-lyrics.js
 spicetify apply
 ```
 
-Manual installs don't update automatically.
+Play a song and open the lyrics view to confirm it loaded.
 
-</details>
+If you already have the original Spicy Lyrics installed (from the Marketplace or as `spicy-lyrics.mjs`), remove it first (`spicetify config extensions spicy-lyrics.mjs-`), or the two will load together.
+
+### Updating
+
+When a new release is out, the extension shows a notice with a button that opens the release page. Download `spicy-lyrics.js` again, replace the file in the Extensions folder, and run `spicetify apply`.
 
 ## Troubleshooting
 
@@ -87,13 +73,13 @@ spicetify restore backup apply
 2. Try another release of the same recording.
 3. Clear the lyrics cache in Spicy Lyrics' settings, then reopen the song.
 4. Check the [status page](https://status.spicylyrics.org/).
-5. Search [#lyric-issues](https://discord.com/channels/1369992682214264993/1370023661830148106) on Discord, then report it with the exact Spotify link.
+5. Search the [issues](https://github.com/minittupoyo/spicy-lyrics/issues), then open a new one with the exact Spotify link.
 
 **High CPU or memory use?** Animated lyrics, dynamic backgrounds, themes, custom CSS, and other extensions all add load. Restart Spotify, test without other extensions or snippets, and check Spotify's hardware-acceleration setting.
 
 ### Reporting a bug
 
-Search [#extension-bugs](https://discord.com/channels/1369992682214264993/1370023518313644193) first. If it's new, include:
+Search the [issues](https://github.com/minittupoyo/spicy-lyrics/issues) first. If it's new, [open one](https://github.com/minittupoyo/spicy-lyrics/issues/new) and include (Settings → Got a Bug? copies your setup details for you):
 
 - your operating system
 - Spotify, Spicetify, and Spicy Lyrics versions
@@ -236,6 +222,10 @@ bun run build
 bun run lint
 bun run fmt
 ```
+
+### Releasing
+
+Raise `ForkRevision` in `project/config.ts`, then run `bun run release`. It builds the extension and packages it as `release/spicy-lyrics.js`, then prints the `gh release create` command that publishes it as `v<version>-fork.<revision>`. Add `--publish` (`bun scripts/release.ts --publish`) to create the release directly.
 
 ## Support the project
 

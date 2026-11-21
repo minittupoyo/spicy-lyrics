@@ -2,7 +2,7 @@ import { IsCardMode, PageContainer } from "../../components/Pages/PageView.ts";
 import { IsCompactMode } from "../../components/Utils/CompactMode.ts";
 import Fullscreen from "../../components/Utils/Fullscreen.ts";
 import { SyncNowBarSide } from "../../components/Utils/NowBar.ts";
-import { BuildBugReport, CopyText, DISCORD_INVITE_URL } from "../BugReport.ts";
+import { BuildBugReport, CopyText, ISSUES_URL } from "../BugReport.ts";
 import { IsQueueOpen } from "../../components/Utils/QueueView.ts";
 import { $showNoLyricsNotice } from "../stores.ts";
 
@@ -39,7 +39,7 @@ const NOTICES: Record<string, NoticeCopy> = {
   },
   "unknown-error": {
     title: "Something went wrong",
-    body: "An unexpected error stopped the lyrics from loading. Try again, and if it keeps happening, copy the details and send them to us on Discord.",
+    body: "An unexpected error stopped the lyrics from loading. Try again, and if it keeps happening, copy the details and open an issue on GitHub with them.",
     retry: true,
     report: true,
   },
@@ -62,7 +62,7 @@ const NOTICES: Record<string, NoticeCopy> = {
   },
   "status-not-200": {
     title: "The lyrics server ran into a problem",
-    body: "Our server returned an error for this song. Try again in a moment. If it keeps happening, copy the details and send them to us on Discord.",
+    body: "Our server returned an error for this song. Try again in a moment. If it keeps happening, copy the details and open an issue on GitHub with them.",
     retry: true,
     report: true,
   },
@@ -232,8 +232,8 @@ export function BuildLyricsNotice(
     actions.appendChild(copyButton);
   }
 
-  const discord = makeButton(ICONS.chat, "Get help on Discord");
-  discord.addEventListener("click", () => window.open(DISCORD_INVITE_URL, "_blank"), { signal });
+  const discord = makeButton(ICONS.chat, "Report on GitHub");
+  discord.addEventListener("click", () => window.open(ISSUES_URL, "_blank"), { signal });
   actions.appendChild(discord);
 
   notice.append(title, body, actions);

@@ -1,6 +1,6 @@
 import { $spicyLyricsVersion } from "../../utils/stores.ts";
 import { getRemoteConfig } from "../../utils/remoteConfig.ts";
-import { EdgeLookup } from "../../utils/API/EdgeService.ts";
+import { ForkRevision, ProjectRepo } from "../../../project/config.ts";
 import Global from "./Global.ts";
 
 interface Location {
@@ -16,6 +16,8 @@ type VersionParsedData =
       Major: number;
       Minor: number;
       Patch: number;
+      /** The fork release within that version (`-fork.N`); 0 when the string has none. */
+      Revision?: number;
     }
   | undefined;
 
@@ -78,25 +80,27 @@ const Session = {
         Major: parseInt(versionMatches[1]),
         Minor: parseInt(versionMatches[2]),
         Patch: parseInt(versionMatches[3]),
+        Revision: parseInt(version.match(/-fork\.(\d+)/)?.[1] ?? "0"),
       };
     },
     GetCurrentVersion: (): VersionParsedData => {
-      return Session.SpicyLyrics.ParseVersion($spicyLyricsVersion.get());
+      const current = Session.SpicyLyrics.ParseVersion($spicyLyricsVersion.get());
+      // Text stays the plain version: it is what the API is told.
+      return current && { ...current, Revision: ForkRevision };
     },
-    GetLatestVersion: async (branch = "public"): Promise<VersionParsedData> => {
-      // On the edge so the frequent update checks stay off /query. Answers
-      // { product, branches: [{ tag, version }] }; we read one branch's version.
-      const res = await EdgeLookup("version", {
-        timeoutMs: getRemoteConfig().updates.latestVersionTimeoutMs,
+    /** The newest release of this fork, read from its GitHub releases. */
+    GetLatestVersion: async (): Promise<VersionParsedData> => {
+      const res = await fetch(`https://api.github.com/repos/${ProjectRepo}/releases/latest`, {
+        headers: { Accept: "application/vnd.github+json" },
+        cache: "no-store",
+        signal: AbortSignal.timeout(getRemoteConfig().updates.latestVersionTimeoutMs),
       });
       if (!res.ok) return undefined;
-      const body = (await res.json().catch(() => undefined)) as
-        | { branches?: { tag?: unknown; version?: unknown }[] }
-        | undefined;
-      const version = Array.isArray(body?.branches)
-        ? body.branches.find((b) => b?.tag === branch)?.version
-        : undefined;
-      return typeof version === "string" ? Session.SpicyLyrics.ParseVersion(version) : undefined;
+      const body = (await res.json().catch(() => undefined)) as { tag_name?: unknown } | undefined;
+      if (typeof body?.tag_name !== "string") return undefined;
+      const latest = Session.SpicyLyrics.ParseVersion(body.tag_name);
+      // Text names the release, so the notes link and the "is out" copy match its tag.
+      return latest && { ...latest, Text: body.tag_name.replace(/^v/, "") };
     },
     IsOutdated: async (): Promise<boolean> => {
       const latestVersion = await Session.SpicyLyrics.GetLatestVersion();
@@ -111,7 +115,8 @@ const Session = {
       // one by one, 6.4.70 counted as behind 6.3.190.
       if (latestVersion.Major !== currentVersion.Major) return latestVersion.Major > currentVersion.Major;
       if (latestVersion.Minor !== currentVersion.Minor) return latestVersion.Minor > currentVersion.Minor;
-      return latestVersion.Patch > currentVersion.Patch;
+      if (latestVersion.Patch !== currentVersion.Patch) return latestVersion.Patch > currentVersion.Patch;
+      return (latestVersion.Revision ?? 0) > (currentVersion.Revision ?? 0);
     },
   },
 };

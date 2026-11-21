@@ -23,7 +23,7 @@ function showUpdateDismissWarning(currentVersion: any) {
   if (WarningInFlight) return;
   WarningInFlight = true;
   toast.warning(currentVersion?.Text ? `Staying on ${currentVersion.Text}` : "Staying on this version", {
-    description: "Some lyrics sources and features need the latest version. Updating reloads Spotify.",
+    description: "Some lyrics sources and features need the latest version.",
     duration: 9000,
     // Its timer pauses while hovered or while Spotify is in the background, so without
     // an X it could sit there with no way to close it short of updating.
@@ -74,7 +74,7 @@ function showUpdateModal(currentVersion: any, latestVersion: any, origin?: DOMRe
           You're on <span className="sl-notice-version">{current}</span>.{" "}
         </>
       )}
-      Updating reloads Spotify, which takes a few seconds.
+      Updating means downloading the new release and replacing the extension file.
     </p>,
   ];
   if (latest) {
@@ -88,7 +88,7 @@ function showUpdateModal(currentVersion: any, latestVersion: any, origin?: DOMRe
   showNotice({
     title: latest ? `Version ${latest} is out` : "An update is out",
     content,
-    primary: { label: "Update and reload", onClick: startUpdate },
+    primary: { label: "Open release page", onClick: startUpdate },
     secondaryLabel: "Not now",
     onDismiss: () => showUpdateDismissWarning(currentVersion),
     origin,

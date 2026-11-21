@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Session from "../../Global/Session.ts";
 import App from "../../../utils/app.ts";
 import { $spicyLyricsVersion } from "../../../utils/stores.ts";
+import { ProjectRepo } from "../../../../project/config.ts";
 
 interface Link {
   label: string;
@@ -13,6 +14,7 @@ interface Link {
 }
 
 const LINKS: Link[] = [
+  { label: "Fork on GitHub", url: `https://github.com/${ProjectRepo}` },
   { label: "Website", url: "https://spicylyrics.org" },
   { label: "Discord", url: "https://discord.com/invite/uqgXU5wh8j", brand: "88, 101, 242" },
   { label: "Ko-fi", url: "https://ko-fi.com/spikerko", brand: "255, 94, 138" },
