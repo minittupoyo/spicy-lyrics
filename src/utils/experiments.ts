@@ -106,7 +106,7 @@ export const EXPERIMENTS = [
     category: "lyrics",
     label: "LRCLIB First",
     description:
-      "Looks each song up on LRCLIB first and shows its synced (line by line) or plain lyrics, falling back to Spicy Lyrics when LRCLIB has none. Disable to use Spicy Lyrics only.",
+      "Looks each song up on LRCLIB. Order: LRCLIB synced, Spicy Lyrics synced, LRCLIB plain, then Spicy Lyrics plain. Disable to use Spicy Lyrics only.",
     default: true,
   },
   {

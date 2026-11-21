@@ -222,18 +222,15 @@ export default async function fetchLyrics(uri: string): Promise<FetchLyricsResul
 }
 
 /**
- * Asks LRCLIB for the track and, if it has lyrics, processes, caches and presents
- * them like an API answer. Resolves `null` (so the caller goes on to the Spicy
- * Lyrics API) when the experiment is off or LRCLIB has nothing.
+ * Processes, caches and presents LRCLIB lyrics like an API answer. Resolves `null`
+ * when nothing renderable is left, so the caller carries on with the next source.
  */
-async function tryLrclib(
+async function presentLrclib(
   uri: string,
-  trackId: string
+  trackId: string,
+  payload: object
 ): Promise<[object, number] | null> {
-  if (!isExperimentEnabled("lrclibFirst")) return null;
-
-  const lyrics: any = await FetchLrclibLyrics(uri);
-  if (!lyrics) return null;
+  const lyrics: any = payload;
 
   const romanizedInFull = await ProcessLyrics(lyrics);
   if (IsEmptyLyrics(lyrics)) return null;
@@ -437,10 +434,16 @@ async function runFetchLyrics(uri: string): Promise<[object | string, number] | 
     const lyricsAccessToken = storage.get("lyricsApiAccessToken") ?? Defaults.LyricsContent.api.accessToken; */
 
   try {
-    // LRCLIB is asked first; the Spicy Lyrics API is the flow when it has nothing.
-    const lrclib = await tryLrclib(uri, trackId);
-    if (lrclib) return lrclib;
+    // Order: LRCLIB synced, Spicy Lyrics synced, LRCLIB plain, Spicy Lyrics plain.
+    // LRCLIB is asked once up front; its plain lyrics wait for the API's answer.
+    const lrclib = isExperimentEnabled("lrclibFirst") ? await FetchLrclibLyrics(uri) : null;
+    if (lrclib?.synced) {
+      const synced = await presentLrclib(uri, trackId, lrclib.synced);
+      if (synced) return synced;
+    }
     if (isStaleFetch(uri)) return null;
+    const lrclibPlain = async () =>
+      lrclib?.plain ? presentLrclib(uri, trackId, lrclib.plain) : null;
 
     let status = 0;
 
@@ -537,6 +540,8 @@ async function runFetchLyrics(uri: string): Promise<[object | string, number] | 
     if (status !== 200) {
       noteFailure(uri, "API", `query status ${status}`);
       if (status === 404) {
+        const plain = await lrclibPlain();
+        if (plain) return plain;
         hideLoaderFor(uri);
         $currentlyFetching.set(false);
         return ["lyrics-not-found", 404];
@@ -556,10 +561,18 @@ async function runFetchLyrics(uri: string): Promise<[object | string, number] | 
     const lyrics = lyricsPacker.unpack(lyricsQuery.data) as any;
 
     if (lyrics === null || lyrics === undefined || lyrics === "") {
+      const plain = await lrclibPlain();
+      if (plain) return plain;
       hideLoaderFor(uri);
       $currentlyFetching.set(false);
       noteFailure(uri, "API", "empty lyrics payload");
       return ["lyrics-not-found", 404];
+    }
+
+    // Unsynced lyrics from the API rank below LRCLIB's plain ones.
+    if (lyrics.Type === "Static") {
+      const plain = await lrclibPlain();
+      if (plain) return plain;
     }
 
     const romanizedInFull = await ProcessLyrics(lyrics);
@@ -569,6 +582,8 @@ async function runFetchLyrics(uri: string): Promise<[object | string, number] | 
     // publishing an empty lyrics card.
     if (IsEmptyLyrics(lyrics)) {
       lyricsLogger.warn("Lyrics payload had no renderable lines after pruning");
+      const plain = await lrclibPlain();
+      if (plain) return plain;
       hideLoaderFor(uri);
       $currentlyFetching.set(false);
       noteFailure(uri, "API", "no renderable lines after pruning");

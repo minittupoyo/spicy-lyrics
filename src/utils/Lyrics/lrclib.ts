@@ -93,12 +93,15 @@ function currentTrack(): LrclibTrack | null {
   };
 }
 
+/** What LRCLIB has for a track, each form already built as a lyrics payload. */
+export type LrclibLyrics = { synced: object | null; plain: object | null };
+
 /**
- * Looks the playing track up on LRCLIB. Resolves a Line payload when synced
- * lyrics exist, a Static one for plain lyrics, and `null` when there is nothing
- * to show (not found, instrumental, or the request failed).
+ * Looks the playing track up on LRCLIB. `synced` is a Line payload and `plain` a
+ * Static one; either is `null` when LRCLIB lacks that form. Resolves `null` when
+ * there is nothing to show at all (not found, instrumental, or the request failed).
  */
-export async function FetchLrclibLyrics(uri: string): Promise<object | null> {
+export async function FetchLrclibLyrics(uri: string): Promise<LrclibLyrics | null> {
   const track = currentTrack();
   if (!track || SpotifyPlayer.GetUri() !== uri) return null;
 
@@ -121,10 +124,9 @@ export async function FetchLrclibLyrics(uri: string): Promise<object | null> {
     const record = (await res.json()) as LrclibRecord;
     if (record.instrumental) return null;
 
-    return (
-      (record.syncedLyrics ? buildSynced(record.syncedLyrics, track.durationSeconds) : null) ??
-      (record.plainLyrics ? buildStatic(record.plainLyrics) : null)
-    );
+    const synced = record.syncedLyrics ? buildSynced(record.syncedLyrics, track.durationSeconds) : null;
+    const plain = record.plainLyrics ? buildStatic(record.plainLyrics) : null;
+    return synced || plain ? { synced, plain } : null;
   } catch (error) {
     lrclibLogger.warn("LRCLIB request failed", error);
     return null;
