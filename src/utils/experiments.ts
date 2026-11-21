@@ -110,6 +110,14 @@ export const EXPERIMENTS = [
     default: true,
   },
   {
+    id: "lrclibFuzzySearch",
+    category: "lyrics",
+    label: "LRCLIB Fuzzy Search",
+    description:
+      "When LRCLIB has no exact match for a song, searches it and uses a close one: the same title (ignoring notes such as \"Remastered\" or \"feat.\"), a credited artist, and a length within 5 seconds. Disable to use exact matches only.",
+    default: true,
+  },
+  {
     id: "canvasImmersive",
     category: "background",
     label: "Canvas Stage",
