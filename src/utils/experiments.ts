@@ -102,6 +102,14 @@ export const EXPERIMENTS = [
     pageClass: "Exp_LyricsSkeleton",
   },
   {
+    id: "lrclibFirst",
+    category: "lyrics",
+    label: "LRCLIB First",
+    description:
+      "Looks each song up on LRCLIB first and shows its synced (line by line) or plain lyrics, falling back to Spicy Lyrics when LRCLIB has none. Disable to use Spicy Lyrics only.",
+    default: true,
+  },
+  {
     id: "canvasImmersive",
     category: "background",
     label: "Canvas Stage",

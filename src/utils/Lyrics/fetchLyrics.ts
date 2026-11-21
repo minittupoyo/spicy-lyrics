@@ -15,7 +15,8 @@ import { SetShownNotice, SyncNoLyricsLayout } from "./LyricsNotice.ts";
 import { GetExpireStore } from "../../modules/Store.ts";
 import { SLObjPack } from "../objpack.ts";
 import { HideLyricsSkeleton, IsLyricsSkeletonEnabled, ShowLyricsSkeleton } from "./LyricsSkeleton.ts";
-import { onExperimentChange } from "../experiments.ts";
+import { isExperimentEnabled, onExperimentChange } from "../experiments.ts";
+import { FetchLrclibLyrics } from "./lrclib.ts";
 import { getRemoteConfig } from "../remoteConfig.ts";
 import { ClearPinnedCredits } from "./Applyer/Credits/PinnedCredits.ts";
 
@@ -220,6 +221,41 @@ export default async function fetchLyrics(uri: string): Promise<FetchLyricsResul
   }
 }
 
+/**
+ * Asks LRCLIB for the track and, if it has lyrics, processes, caches and presents
+ * them like an API answer. Resolves `null` (so the caller goes on to the Spicy
+ * Lyrics API) when the experiment is off or LRCLIB has nothing.
+ */
+async function tryLrclib(
+  uri: string,
+  trackId: string
+): Promise<[object, number] | null> {
+  if (!isExperimentEnabled("lrclibFirst")) return null;
+
+  const lyrics: any = await FetchLrclibLyrics(uri);
+  if (!lyrics) return null;
+
+  const romanizedInFull = await ProcessLyrics(lyrics);
+  if (IsEmptyLyrics(lyrics)) return null;
+  lyrics.uri = uri;
+
+  if (LyricsStore && romanizedInFull) {
+    try {
+      await LyricsStore.SetItem(trackId, lyrics);
+    } catch (error) {
+      lyricsCacheLogger.error("Error saving LRCLIB lyrics to cache", error);
+    }
+  }
+
+  if (isStaleFetch(uri)) return [{ ...lyrics, fromCache: false }, 200];
+
+  if (lastFailure?.uri === uri) lastFailure = null;
+  lastAnswer = { uri, from: "API" };
+  $currentLyricsData.set(JSON.stringify(lyrics));
+  presentLyrics(lyrics);
+  return [{ ...lyrics, fromCache: false }, 200];
+}
+
 async function runFetchLyrics(uri: string): Promise<[object | string, number] | null> {
   lyricsLogger.debug("Fetch requested", uri);
   if (lastFailure?.uri === uri) lastFailure = null;
@@ -401,6 +437,11 @@ async function runFetchLyrics(uri: string): Promise<[object | string, number] | 
     const lyricsAccessToken = storage.get("lyricsApiAccessToken") ?? Defaults.LyricsContent.api.accessToken; */
 
   try {
+    // LRCLIB is asked first; the Spicy Lyrics API is the flow when it has nothing.
+    const lrclib = await tryLrclib(uri, trackId);
+    if (lrclib) return lrclib;
+    if (isStaleFetch(uri)) return null;
+
     let status = 0;
 
     const runLyricsQuery = async (token: string) => {

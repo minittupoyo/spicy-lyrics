@@ -6,6 +6,7 @@ export const ProviderMap = {
     "spl": "Spicy Lyrics",
     "ldb": "Local DB",
     "uns": "Unison",
+    "lrclib": "LRCLIB",
 } as const;
 
 // `url` carries a utm_source so the source can tell visits that came from here.
