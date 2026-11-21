@@ -72,8 +72,9 @@ spicetify restore backup apply
 1. Make sure you opened the song version you meant to. Singles, albums, deluxe, clean, and remastered releases can have different lyrics or timing.
 2. Try another release of the same recording.
 3. Clear the lyrics cache in Spicy Lyrics' settings, then reopen the song.
-4. Check the [status page](https://status.spicylyrics.org/).
-5. Search the [issues](https://github.com/minittupoyo/spicy-lyrics/issues), then open a new one with the exact Spotify link.
+4. If the wrong lyrics show up, they may come from LRCLIB, which matches by title, artist, and duration (within about 2 seconds). Turn off **LRCLIB First** in Settings → Experiments to use Spicy Lyrics only, and open an issue with the song link.
+5. Check the original service's [status page](https://status.spicylyrics.org/).
+6. Search the [issues](https://github.com/minittupoyo/spicy-lyrics/issues), then open a new one with the exact Spotify link.
 
 **High CPU or memory use?** Animated lyrics, dynamic backgrounds, themes, custom CSS, and other extensions all add load. Restart Spotify, test without other extensions or snippets, and check Spotify's hardware-acceleration setting.
 
@@ -104,14 +105,21 @@ Security issues go through [SECURITY.md](./SECURITY.md), not public channels.
 | Line-synced | Advances one timed line at a time. |
 | Static | Shows lyrics without timing. |
 
-The sync type depends on the lyric data available for that exact track. There's no setting to turn line-synced lyrics into word-synced ones.
+The sync type depends on the lyric data available for that exact track. There's no setting to turn line-synced lyrics into word-synced ones. LRCLIB provides line-synced and static lyrics only; word-synced lyrics come from the Spicy Lyrics API.
 
 </details>
 
 <details>
 <summary><strong>Where do the lyrics come from?</strong></summary>
 
-Community-uploaded TTML lyrics first, then other supported sources, including Apple Music and Spotify. What you see depends on availability, matching, and source priority.
+In this order:
+
+1. [LRCLIB](https://lrclib.net) synced lyrics.
+2. Spicy Lyrics synced lyrics: community-uploaded TTML first, then other supported sources, including Apple Music and Spotify.
+3. LRCLIB plain (unsynced) lyrics.
+4. Spicy Lyrics static lyrics.
+
+Songs you import into the Lyrics Manager always win. **LRCLIB First** in Settings → Experiments turns LRCLIB off, leaving Spicy Lyrics only. What you see depends on availability, matching, and source priority.
 
 </details>
 
@@ -134,14 +142,14 @@ Online lyric lookup needs an internet connection. Lyrics you import into the **L
 <details>
 <summary><strong>Can I use my own TTML file without uploading it?</strong></summary>
 
-Yes. Open the **Lyrics Manager** and import the TTML as a temporary upload (for quick testing) or a persistent one (kept in your local library). There's no setting for adding other online lyric providers.
+Yes. Open the **Lyrics Manager** and import the TTML as a temporary upload (for quick testing) or a persistent one (kept in your local library). There's no setting for adding online lyric providers beyond LRCLIB.
 
 </details>
 
 <details>
 <summary><strong>Why is the timing off in Spotify?</strong></summary>
 
-If one song is off, the lyric file may have been timed against a different release. Report it with the song link.
+If one song is off, the lyric file may have been timed against a different release. LRCLIB lyrics are timed by their uploaders and can differ between releases too; turn off **LRCLIB First** to compare. Report it with the song link.
 
 If every song is off on your device, use the playback-offset setting in Spicy Lyrics.
 
@@ -150,7 +158,7 @@ If every song is off on your device, use the playback-offset setting in Spicy Ly
 <details>
 <summary><strong>Can I change the lyrics font?</strong></summary>
 
-Install the font on your computer, then:
+Install the font on your computer, then (this needs the [Spicetify Marketplace](https://github.com/spicetify/marketplace) installed):
 
 1. Open **Marketplace → Snippets → Add CSS**.
 2. Paste this, replacing `Your Font Name` with the font's exact name:
@@ -171,13 +179,15 @@ This changes Spotify's whole interface font, not only the lyrics. Disable the sn
 <details>
 <summary><strong>Where can I request a feature?</strong></summary>
 
-Search [#extension-suggestions](https://discord.com/channels/1369992682214264993/1370023393675575369) first, then post if your idea isn't already there. Describe the problem and who it affects, not only the solution you want.
+Search the [issues](https://github.com/minittupoyo/spicy-lyrics/issues) first, then open one if your idea isn't already there. Describe the problem and who it affects, not only the solution you want.
 
 </details>
 
-More answers are in the [full FAQ](https://guides.spicylyrics.org/s/tools/doc/faq-anGSiKrnmX).
+More answers are in the original project's [full FAQ](https://guides.spicylyrics.org/s/tools/doc/faq-anGSiKrnmX).
 
 ## Contributing lyrics
+
+This section describes the original project's lyrics database, which this fork doesn't run: TTML submissions go to the original project, and its guides and rules apply there. Missing synced lyrics can also be added to [LRCLIB](https://lrclib.net), which this fork reads first.
 
 Most word-synced lyrics in Spicy Lyrics are TTML files made by the community. TTML is an XML-based format that can store line and word timing, background vocals, duet positioning, and romanization, which LRC can't do consistently.
 
@@ -229,14 +239,12 @@ Raise `ForkRevision` in `project/config.ts`, then run `bun run release`. It buil
 
 ## Support the project
 
-- Donate to Spikerko on [Ko-fi](https://ko-fi.com/spikerko)
-- Contribute code to this repository
-- Boost the [Discord server](https://discord.gg/lyrc)
-- Report bugs you can reproduce
-- Make accurate TTML lyrics
+- Contribute code to this repository, and [report bugs](https://github.com/minittupoyo/spicy-lyrics/issues) you can reproduce
+- Add accurate lyrics to [LRCLIB](https://lrclib.net)
+- Support the original project: donate to Spikerko on [Ko-fi](https://ko-fi.com/spikerko), boost its [Discord server](https://discord.gg/lyrc), or make TTML lyrics for it
 
 ## License
 
-The extension is licensed under [AGPL-3.0](./LICENSE). The hosted services, databases, and websites behind Spicy Lyrics are separate and aren't covered by this license.
+The extension is licensed under [AGPL-3.0](./LICENSE). The hosted services, databases, and websites behind Spicy Lyrics are the original project's and aren't covered by this license. LRCLIB is a separate service with its own terms.
 
 *Inspired by [Beautiful Lyrics](https://github.com/surfbryce/beautiful-lyrics)*
