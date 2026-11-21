@@ -3,6 +3,7 @@ import { atom } from "nanostores";
 import React, { useEffect, useState } from "react";
 import Session from "../../Global/Session.ts";
 import App from "../../../utils/app.ts";
+import { t } from "../../../utils/i18n.ts";
 import { $spicyLyricsVersion } from "../../../utils/stores.ts";
 import { ProjectRepo } from "../../../../project/config.ts";
 
@@ -90,14 +91,14 @@ export default function About({ status }: { status: UpdateStatus }) {
       <div className="sl-sp-about-hero">
         <span className="sl-sp-about-wordmark">Spicy Lyrics</span>
         <div className="sl-sp-about-status-row">
-          <span className="sl-sp-about-version">Version {version}</span>
+          <span className="sl-sp-about-version">{t("Version")} {version}</span>
           {(status === "latest" || status === "outdated") && (
             <>
               <span className="sl-sp-about-sep" aria-hidden="true">
                 ·
               </span>
               <span className={`sl-sp-about-status sl-sp-about-status--${status}`}>
-                {status === "latest" ? "Up to date" : "Update available"}
+                {t(status === "latest" ? "Up to date" : "Update available")}
               </span>
             </>
           )}
@@ -107,12 +108,12 @@ export default function About({ status }: { status: UpdateStatus }) {
               className="sl-sp-about-update"
               onClick={() => Session.Navigate({ pathname: "/SpicyLyrics/Update" })}
             >
-              Update
+              {t("Update")}
             </button>
           )}
         </div>
         <span className="sl-sp-about-build">
-          Build <span className="sl-sp-about-build-value">{build}</span>
+          {t("Build")} <span className="sl-sp-about-build-value">{build}</span>
         </span>
       </div>
 
@@ -125,7 +126,7 @@ export default function About({ status }: { status: UpdateStatus }) {
             style={brand ? ({ "--brand": brand } as React.CSSProperties) : undefined}
             onClick={() => window.open(url, "_blank")}
           >
-            <span>{label}</span>
+            <span>{t(label)}</span>
             <ExternalArrow />
           </button>
         ))}

@@ -7,6 +7,7 @@ import {
 import { $developerMode } from "../../../utils/stores.ts";
 import { Toggle } from "./components.tsx";
 import { AdvancedIcon } from "./icons.tsx";
+import { t } from "../../../utils/i18n.ts";
 import type { GroupDef, SectionDef } from "./model.ts";
 
 // Built once: the Control components must keep their identity across renders.
@@ -25,7 +26,7 @@ const groups: GroupDef[] = [
             className="sl-sp-btn"
             onClick={() => RemoveCurrentLyrics_AllCaches(true)}
           >
-            Clear
+            {t("Clear")}
           </button>
         ),
       },
@@ -36,7 +37,7 @@ const groups: GroupDef[] = [
         keywords: "clear lyrics cache",
         Control: () => (
           <button type="button" className="sl-sp-btn" onClick={() => RemoveLyricsCache(true)}>
-            Clear
+            {t("Clear")}
           </button>
         ),
       },
@@ -51,7 +52,7 @@ const groups: GroupDef[] = [
             className="sl-sp-btn"
             onClick={() => RemoveCurrentLyrics_StateCache(true)}
           >
-            Reset
+            {t("Reset")}
           </button>
         ),
       },

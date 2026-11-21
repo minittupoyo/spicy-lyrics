@@ -61,6 +61,7 @@ export const EXPERIMENT_CATEGORIES = [
   { id: "lyrics", title: "Lyrics" },
   { id: "background", title: "Background" },
   { id: "player", title: "Player" },
+  { id: "interface", title: "Interface" },
 ] as const;
 export type ExperimentCategory = (typeof EXPERIMENT_CATEGORIES)[number]["id"];
 
@@ -100,6 +101,14 @@ export const EXPERIMENTS = [
       "Shows placeholder lines and a small \"Loading Lyrics\" label while lyrics fetch and render, instead of the blurred spinner. Disable to bring the spinner back.",
     default: true,
     pageClass: "Exp_LyricsSkeleton",
+  },
+  {
+    id: "japaneseUi",
+    category: "interface",
+    label: "Japanese UI",
+    description:
+      "Shows the settings in Japanese. Only the settings panel is translated so far; everything else stays in English. Disable to bring back English.",
+    default: false,
   },
   {
     id: "lrclibFirst",

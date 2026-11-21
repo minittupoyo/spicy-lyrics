@@ -1,4 +1,5 @@
 import type React from "react";
+import { t } from "../../../utils/i18n.ts";
 
 /**
  * One row in the settings panel. The label and description written here are
@@ -72,7 +73,8 @@ export interface SectionDef {
 export function matchesSetting(query: string, setting: SettingDef): boolean {
   const terms = searchTerms(query);
   if (terms.length === 0) return true;
-  const haystack = [setting.label, setting.description, setting.keywords]
+  // Both languages match, so English terms keep working with the Japanese UI on.
+  const haystack = [setting.label, setting.description, setting.keywords, t(setting.label), t(setting.description)]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
@@ -81,7 +83,7 @@ export function matchesSetting(query: string, setting: SettingDef): boolean {
 
 /** Whether every term is in the label itself — those hits are listed first. */
 export function matchesLabel(query: string, setting: SettingDef): boolean {
-  const label = setting.label.toLowerCase();
+  const label = `${setting.label} ${t(setting.label)}`.toLowerCase();
   return searchTerms(query).every((term) => label.includes(term));
 }
 

@@ -1,6 +1,6 @@
 import { useStore } from "@nanostores/react";
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { $experimentOverrides } from "../../../utils/experiments.ts";
+import { $experiment, $experimentOverrides } from "../../../utils/experiments.ts";
 import { $ttmlReviewer, isHeldByReviewer, REVIEWER_LOCK_REASON } from "../../../utils/ttmlReviewer.ts";
 import { PopupModal } from "../../Modal.ts";
 import About, { useUpdateStatus } from "./About.tsx";
@@ -21,6 +21,7 @@ import {
   type SettingDef,
   searchTerms,
 } from "./model.ts";
+import { t } from "../../../utils/i18n.ts";
 import { playbackSection } from "./PlaybackSection.tsx";
 import { ReviewerPane, reviewerSection } from "./ReviewerSection.tsx";
 
@@ -68,7 +69,7 @@ function SettingRow({ def, query }: { def: SettingDef; query: string }) {
   const reason = heldByReviewer ? REVIEWER_LOCK_REASON : ownReason;
   const useNote = def.useNote ?? notDisabled;
   const note = useNote();
-  const label = <Highlight text={def.label} query={query} />;
+  const label = <Highlight text={t(def.label)} query={query} />;
 
   if (def.render) return <>{def.render(label, query !== "")}</>;
   if (!def.Control) return null;
@@ -78,7 +79,7 @@ function SettingRow({ def, query }: { def: SettingDef; query: string }) {
   return (
     <Row
       label={label}
-      description={def.description}
+      description={t(def.description)}
       stacked={def.stacked}
       disabled={!!reason}
       disabledReason={reason || undefined}
@@ -87,7 +88,7 @@ function SettingRow({ def, query }: { def: SettingDef; query: string }) {
     >
       {/* Not every Control passes `disabled` on; this holds them all, keyboard included. */}
       <fieldset className="sl-sp-control-lock" disabled={!!reason}>
-        <Control disabled={!!reason} label={def.label} />
+        <Control disabled={!!reason} label={t(def.label)} />
       </fieldset>
     </Row>
   );
@@ -115,6 +116,8 @@ function search(query: string): SearchHit[] {
 export default function SettingsPanel() {
   // Experiments' rows are rebuilt from the overrides, so they re-render with them.
   useStore($experimentOverrides);
+  // Redraws the whole panel when the language is switched.
+  useStore($experiment("japaneseUi"));
   const reviewerOn = useStore($ttmlReviewer);
 
   const [tab, setTab] = useState<SectionId>(() => {
@@ -269,11 +272,11 @@ export default function SettingsPanel() {
         onClick={() => select(s.id)}
       >
         <span className="sl-sp-tab-icon">{s.icon}</span>
-        <span className="sl-sp-tab-label">{s.title}</span>
+        <span className="sl-sp-tab-label">{t(s.title)}</span>
         {count !== null && count > 0 && <span className="sl-sp-tab-count">{count}</span>}
-        {s.id === "reviewer" && reviewerOn && <span className="sl-sp-tab-dot" aria-label="TTML Reviewer is on" />}
+        {s.id === "reviewer" && reviewerOn && <span className="sl-sp-tab-dot" aria-label={t("TTML Reviewer is on")} />}
         {count === null && s.id === "about" && updateStatus === "outdated" && (
-          <span className="sl-sp-tab-dot" aria-label="Update available" />
+          <span className="sl-sp-tab-dot" aria-label={t("Update available")} />
         )}
       </button>
     );
@@ -286,10 +289,10 @@ export default function SettingsPanel() {
   return (
     <PeekContext.Provider value={peekControls}>
     <div className="sl-sp" ref={rootRef}>
-      <nav className="sl-sp-sidebar" aria-label="Settings sections">
+      <nav className="sl-sp-sidebar" aria-label={t("Settings sections")}>
         <div className="sl-sp-brand">
           <span className="sl-sp-brand-line">Spicy Lyrics</span>
-          <h1 className="sl-sp-title">Settings</h1>
+          <h1 className="sl-sp-title">{t("Settings")}</h1>
         </div>
 
         <SearchBar ref={searchRef} value={query} onChange={onQueryChange} />
@@ -308,7 +311,7 @@ export default function SettingsPanel() {
 
       <section className="sl-sp-pane">
         <div className="sl-sp-pane-header" ref={headerRef}>
-          <h2 className="sl-sp-pane-title">{searching ? "Results" : section.title}</h2>
+          <h2 className="sl-sp-pane-title">{t(searching ? "Results" : section.title)}</h2>
           {searching ? (
             <span className="sl-sp-pane-count">
               {hitCount === 1 ? "1 setting" : `${hitCount} settings`}
@@ -320,8 +323,8 @@ export default function SettingsPanel() {
             <button
               type="button"
               className="sl-sp-peek"
-              aria-label="Peek at the lyrics"
-              title="Hold to see the lyrics behind the settings"
+              aria-label={t("Peek at the lyrics")}
+              title={t("Hold to see the lyrics behind the settings")}
               aria-pressed={peek !== null && peek.keep === null}
               onPointerDown={(event) => {
                 if (event.button !== 0) return;
@@ -348,7 +351,7 @@ export default function SettingsPanel() {
           <button
             type="button"
             className="sl-sp-close"
-            aria-label="Close settings"
+            aria-label={t("Close settings")}
             onClick={() => PopupModal.hide()}
           >
             {CloseIcon}
@@ -362,7 +365,7 @@ export default function SettingsPanel() {
           id="sl-sp-panel"
           role="tabpanel"
           aria-labelledby={searching ? undefined : `sl-sp-tab-${tab}`}
-          aria-label={searching ? "Search results" : undefined}
+          aria-label={searching ? t("Search results") : undefined}
         >
           <div
             key={searching ? "search" : tab}
@@ -378,7 +381,7 @@ export default function SettingsPanel() {
                       className="sl-sp-group-title sl-sp-group-link"
                       onClick={() => select(s.id)}
                     >
-                      {s.title}
+                      {t(s.title)}
                       {ChevronIcon}
                     </button>
                     <div className="sl-sp-card">
@@ -390,8 +393,10 @@ export default function SettingsPanel() {
                 ))
               ) : (
                 <div className="sl-sp-empty">
-                  <p className="sl-sp-empty-title">No results for “{query.trim()}”</p>
-                  <p className="sl-sp-empty-hint">Check the spelling, or try a shorter word.</p>
+                  <p className="sl-sp-empty-title">
+                    {t("No results for")} “{query.trim()}”
+                  </p>
+                  <p className="sl-sp-empty-hint">{t("Check the spelling, or try a shorter word.")}</p>
                 </div>
               )
             ) : section.id === "about" ? (
@@ -402,13 +407,13 @@ export default function SettingsPanel() {
               <BugReportPane />
             ) : (
               <>
-                {section.intro && <p className="sl-sp-intro">{section.intro}</p>}
+                {section.intro && <p className="sl-sp-intro">{t(section.intro)}</p>}
                 {/* Experiment rows are all held at once, so the tab says it once, not per row. */}
                 {section.id === "experiments" && reviewerOn && <p className="sl-sp-intro">{REVIEWER_LOCK_REASON}</p>}
                 {hasRows ? (
                   groups.map((group, i) => (
                     <div className="sl-sp-group" key={group.title ?? i}>
-                      {group.title && <h3 className="sl-sp-group-title">{group.title}</h3>}
+                      {group.title && <h3 className="sl-sp-group-title">{t(group.title)}</h3>}
                       <div className="sl-sp-card">
                         {group.settings.map((def) => (
                           <SettingRow key={def.id} def={def} query="" />
@@ -418,7 +423,7 @@ export default function SettingsPanel() {
                   ))
                 ) : (
                   <div className="sl-sp-empty">
-                    <p className="sl-sp-empty-title">{section.emptyText ?? "Nothing here yet."}</p>
+                    <p className="sl-sp-empty-title">{t(section.emptyText ?? "Nothing here yet.")}</p>
                   </div>
                 )}
               </>

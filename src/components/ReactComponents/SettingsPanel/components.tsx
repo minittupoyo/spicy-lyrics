@@ -1,4 +1,5 @@
 import React, { forwardRef, useContext, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { t } from "../../../utils/i18n.ts";
 import { searchTerms } from "./model.ts";
 
 /**
@@ -573,7 +574,7 @@ export function Slider({
             className="sl-sp-slider-reset"
             onClick={() => onChange(defaultValue!)}
           >
-            Reset
+            {t("Reset")}
           </button>
         )}
       </div>
@@ -726,7 +727,7 @@ export function Segmented<T extends string>({
           disabled={disabled || opt.disabled}
           onClick={() => pick(i, false)}
         >
-          {opt.label}
+          {t(opt.label)}
         </button>
       ))}
     </div>
@@ -741,7 +742,7 @@ export const SearchBar = forwardRef<
     onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     placeholder?: string;
   }
->(function SearchBar({ value, onChange, onKeyDown, placeholder = "Search settings" }, ref) {
+>(function SearchBar({ value, onChange, onKeyDown, placeholder = t("Search settings") }, ref) {
   return (
     <div className="sl-sp-search-wrap">
       <svg
@@ -768,7 +769,7 @@ export const SearchBar = forwardRef<
         ref={ref}
         className="sl-sp-search"
         type="search"
-        aria-label="Search all settings"
+        aria-label={t("Search all settings")}
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.currentTarget.value)}
@@ -780,7 +781,7 @@ export const SearchBar = forwardRef<
           type="button"
           className="sl-sp-search-clear"
           onClick={() => onChange("")}
-          aria-label="Clear search"
+          aria-label={t("Clear search")}
         >
           <svg
             width="10"

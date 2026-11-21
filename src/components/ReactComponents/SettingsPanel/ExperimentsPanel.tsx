@@ -11,6 +11,7 @@ import {
 import { $backgroundStyle } from "../../../utils/stores.ts";
 import { $ttmlReviewer, REVIEWER_LOCK_REASON } from "../../../utils/ttmlReviewer.ts";
 import { BACKGROUND_STYLE_LABELS } from "./BackgroundSection.tsx";
+import { t } from "../../../utils/i18n.ts";
 import { Row, Toggle } from "./components.tsx";
 
 /**
@@ -93,7 +94,7 @@ export function SyncStatus() {
       aria-hidden={!syncing}
     >
       <span className="sl-sp-sync-spinner" aria-hidden="true" />
-      Checking for changes
+      {t("Checking for changes")}
     </span>
   );
 }
@@ -146,7 +147,7 @@ export function ExperimentRow({
       <span
         ref={badgeRef}
         className="sl-sp-forced-badge"
-        title="Set by Spicy Lyrics, so it can't be changed here."
+        title={t("Set by Spicy Lyrics, so it can't be changed here.")}
       >
         <svg width="9" height="10" viewBox="0 0 9 10" fill="none" aria-hidden="true">
           <rect x="0.75" y="4.25" width="7.5" height="5" rx="1.25" fill="currentColor" />
@@ -156,7 +157,7 @@ export function ExperimentRow({
             strokeWidth="1.3"
           />
         </svg>
-        {forced ? "Forced on" : "Forced off"}
+        {t(forced ? "Forced on" : "Forced off")}
       </span>
     );
 
